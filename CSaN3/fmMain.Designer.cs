@@ -39,9 +39,10 @@
             // 
             // bbName
             // 
-            this.bbName.Location = new System.Drawing.Point(-2, 59);
+            this.bbName.Location = new System.Drawing.Point(-2, 48);
+            this.bbName.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bbName.Name = "bbName";
-            this.bbName.Size = new System.Drawing.Size(130, 30);
+            this.bbName.Size = new System.Drawing.Size(98, 24);
             this.bbName.TabIndex = 0;
             this.bbName.Text = "Изменить имя";
             this.bbName.UseVisualStyleBackColor = true;
@@ -50,9 +51,10 @@
             // bbSendText
             // 
             this.bbSendText.Enabled = false;
-            this.bbSendText.Location = new System.Drawing.Point(261, 548);
+            this.bbSendText.Location = new System.Drawing.Point(196, 445);
+            this.bbSendText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bbSendText.Name = "bbSendText";
-            this.bbSendText.Size = new System.Drawing.Size(161, 37);
+            this.bbSendText.Size = new System.Drawing.Size(121, 30);
             this.bbSendText.TabIndex = 3;
             this.bbSendText.Text = "Отправить";
             this.bbSendText.UseVisualStyleBackColor = true;
@@ -60,34 +62,39 @@
             // 
             // tbName
             // 
-            this.tbName.Location = new System.Drawing.Point(-2, 31);
+            this.tbName.Location = new System.Drawing.Point(-2, 25);
+            this.tbName.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tbName.Name = "tbName";
-            this.tbName.Size = new System.Drawing.Size(257, 22);
+            this.tbName.Size = new System.Drawing.Size(194, 20);
             this.tbName.TabIndex = 4;
             // 
             // tbSendText
             // 
-            this.tbSendText.Location = new System.Drawing.Point(419, 548);
+            this.tbSendText.Location = new System.Drawing.Point(314, 445);
+            this.tbSendText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tbSendText.Multiline = true;
             this.tbSendText.Name = "tbSendText";
-            this.tbSendText.Size = new System.Drawing.Size(714, 37);
+            this.tbSendText.Size = new System.Drawing.Size(536, 31);
             this.tbSendText.TabIndex = 5;
             // 
             // tbChat
             // 
-            this.tbChat.Location = new System.Drawing.Point(261, -2);
+            this.tbChat.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tbChat.Location = new System.Drawing.Point(196, -2);
+            this.tbChat.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tbChat.Multiline = true;
             this.tbChat.Name = "tbChat";
             this.tbChat.ReadOnly = true;
             this.tbChat.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbChat.Size = new System.Drawing.Size(881, 544);
+            this.tbChat.Size = new System.Drawing.Size(662, 443);
             this.tbChat.TabIndex = 6;
             // 
             // bbConnect
             // 
-            this.bbConnect.Location = new System.Drawing.Point(-2, 126);
+            this.bbConnect.Location = new System.Drawing.Point(-2, 102);
+            this.bbConnect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bbConnect.Name = "bbConnect";
-            this.bbConnect.Size = new System.Drawing.Size(130, 30);
+            this.bbConnect.Size = new System.Drawing.Size(98, 24);
             this.bbConnect.TabIndex = 7;
             this.bbConnect.Text = "Подключиться";
             this.bbConnect.UseVisualStyleBackColor = true;
@@ -96,9 +103,10 @@
             // bbDisconnect
             // 
             this.bbDisconnect.Enabled = false;
-            this.bbDisconnect.Location = new System.Drawing.Point(125, 126);
+            this.bbDisconnect.Location = new System.Drawing.Point(94, 102);
+            this.bbDisconnect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bbDisconnect.Name = "bbDisconnect";
-            this.bbDisconnect.Size = new System.Drawing.Size(130, 30);
+            this.bbDisconnect.Size = new System.Drawing.Size(98, 24);
             this.bbDisconnect.TabIndex = 8;
             this.bbDisconnect.Text = "Отключиться";
             this.bbDisconnect.UseVisualStyleBackColor = true;
@@ -106,10 +114,10 @@
             // 
             // fmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.ClientSize = new System.Drawing.Size(1135, 588);
+            this.ClientSize = new System.Drawing.Size(851, 478);
             this.Controls.Add(this.bbDisconnect);
             this.Controls.Add(this.bbConnect);
             this.Controls.Add(this.tbChat);
@@ -117,6 +125,7 @@
             this.Controls.Add(this.tbName);
             this.Controls.Add(this.bbSendText);
             this.Controls.Add(this.bbName);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "fmMain";
             this.Text = "Локальный чат";
             this.ResumeLayout(false);

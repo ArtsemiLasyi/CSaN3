@@ -14,23 +14,26 @@ namespace CSaN3
 {
     public partial class fmMain : Form
     {
-
+        private const int CONNECT = 1;
+        private const int MESSAGE = 2;
+        private const int DISCONNECT = 3;
+        private const int TYPE_AND_LENGTH_SIZE = 5;
         private const int udp_port = 11000;
         private const int tcp_port = 7171;
-        private const byte NUM_OF_UDP_PACKET = 10;
+        private const byte NUM_OF_UDP_PACKET = 100;
         private const string broadcast = "192.168.0.255";
         private bool alive = false;
         private string username;
         private TcpListener tcpListener;
         private List<ChatParticipant> Chatters = new List<ChatParticipant>();
         private IPAddress localIPAddress;
-
+        private object synclock = new object();
 
         // Отправка широковещательного пакета с именем пользователя
         private void SendBroadcastMessage()
         {
             // Отправить широковещательный пакет с именем
-            UdpClient udpClient = new UdpClient(broadcast, udp_port);
+            UdpClient udpClient = new UdpClient(IPAddress.Broadcast.ToString(), udp_port);
             udpClient.EnableBroadcast = true;
             var data = Encoding.Unicode.GetBytes(username);
             Task.Factory.StartNew(ListeningForConnections);
@@ -52,19 +55,19 @@ namespace CSaN3
                 var receivedData = udpListener.Receive(ref remoteHost);
                 if (alive)
                 {
-                    if (remoteHost.Address.ToString() != localIPAddress.ToString())
-                    {
+                    //if (!remoteHost.Address.Equals(localIPAddress))
+                    //{
                         if (!AlreadyConnected(remoteHost.Address))
                         {
                             var chatter = new ChatParticipant();
                             chatter.IPEndPoint = remoteHost;
                             chatter.username = Encoding.Unicode.GetString(receivedData);
                             chatter.Connect();
-                            chatter.SendMessage(" подключился!", 1);
+                            chatter.SendMessage(" подключился!",username, 1);
                             Chatters.Add(chatter);
                             Task.Factory.StartNew(() => ListenTCP(Chatters[Chatters.IndexOf(chatter)]));
                         }
-                    }
+                   // }
                 }
             }
         }
@@ -82,7 +85,7 @@ namespace CSaN3
                     chatter.tcpClient = tcpListener.AcceptTcpClient();
                     chatter.IPEndPoint = ((IPEndPoint)chatter.tcpClient.Client.RemoteEndPoint);
                     chatter.stream = chatter.tcpClient.GetStream();
-                    chatter.SendMessage(" подключился!", 1);
+                    chatter.SendMessage(" подключился!",username, 1);
                     Chatters.Add(chatter);
                     Task.Factory.StartNew(() => ListenTCP(Chatters[Chatters.IndexOf(chatter)]));
                 }
@@ -90,16 +93,15 @@ namespace CSaN3
             tcpListener.Stop();
         }
 
-        // Обработка сообщений от узлов
+        // Обработка сообщений от 
         private void ListenTCP(ChatParticipant chatter)
         {
-            var flag = chatter.Listen;
-            while (flag)
+            while (chatter.Listen)
             {
                 if (chatter.stream.DataAvailable)
                 {
                     string data = chatter.ReceiveMessage();
-                    string message = chatter.getMessage(data);
+                    string message = data;
                     if (chatter.getCode(data) == 3)
                     {
                         chatter.Listen = false;
@@ -116,20 +118,23 @@ namespace CSaN3
         {
             foreach (var chatter in Chatters)
             {
-                chatter.SendMessage(message, 2);
+                chatter.SendMessage(message,username, 2);
             }
         }
 
         // Отключение
         private void Disconnect()
         {
-            foreach (var user in Chatters)
+            lock (synclock)
             {
-                user.Listen = false;
-                user.SendMessage(" отключился!", 3);
-                user.Dispose();
+                foreach (var user in Chatters)
+                {
+                    user.Listen = false;
+                    user.SendMessage(" отключился!",username, 3);
+                    user.Dispose();
+                }
+                Chatters.Clear();
             }
-            Chatters.Clear();
         }
 
         // Подключен ли уже пользователь с данным ip
@@ -191,7 +196,6 @@ namespace CSaN3
             SendMessage();
         }
 
-
         private void bbName_Click(object sender, EventArgs e)
         {
             tbName.ReadOnly = false;
@@ -214,6 +218,7 @@ namespace CSaN3
             bbConnect.Enabled = true;
             bbDisconnect.Enabled = false;
             bbSendText.Enabled = false;
+            Disconnect();
         }
     }
 }

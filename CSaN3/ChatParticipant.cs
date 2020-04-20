@@ -43,11 +43,15 @@ namespace CSaN3
             stream = tcpClient.GetStream();
         }
 
-        public void SendMessage(string message, int code)
+        public void SendMessage(string message, string localusername, int code)
         {
-            message = MakeMessage(message, code);
+            message = MakeMessage(message, localusername,  code);
             byte[] data = Encoding.Unicode.GetBytes(message);
-            stream.Write(data, 0, data.Length);
+            try
+            {
+                stream.Write(data, 0, data.Length);
+            }
+            catch { }
         }
 
         public string ReceiveMessage()
@@ -63,7 +67,6 @@ namespace CSaN3
             return response.ToString();
         }
         
-
         public void Dispose()
         {
             stream.Close();
@@ -77,9 +80,9 @@ namespace CSaN3
             return codeEnd + username + nameEnd + ipStart + IPEndPoint.Address + ipEnd + message;
         }
 
-        public string MakeMessage(string message, int code)
+        public string MakeMessage(string message, string localusername, int code)
         {
-            return code.ToString() + codeEnd + username + nameEnd + ipStart + IPEndPoint.Address + ipEnd + message;
+            return code.ToString() + codeEnd + localusername + nameEnd + ipStart + IPEndPoint.Address + ipEnd + message;
         }
 
         public string getChatterName(string message)
