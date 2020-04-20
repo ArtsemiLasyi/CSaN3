@@ -15,37 +15,24 @@ namespace CSaN3
         private string ipEnd = "]";
         private string nameEnd = " ";
         private string codeEnd = "|";
-        private const int CONNECT = 1;
-        private const int MESSAGE = 2;
-        private const int DISCONNECT = 3;
-        private const int TYPE_AND_LENGTH_SIZE = 5;
-        private const int SIZE_OF_INT = sizeof(int);
-
 
         public TcpClient tcpClient;
         public NetworkStream stream;
+        public bool alive = true;
 
         public string username;
-        public IPEndPoint IPEndPoint;
-        public IPAddress IPv4Address
-        {
-            get
-            {
-                return IPEndPoint.Address;
-            }
-        }
-        public bool Listen = true;
+        public IPAddress IPv4Address;
 
         public void Connect()
         {
             tcpClient = new TcpClient();
-            tcpClient.Connect(new IPEndPoint(IPv4Address, tcp_port));
+            tcpClient.Connect(IPv4Address, tcp_port);
             stream = tcpClient.GetStream();
         }
 
-        public void SendMessage(string message, string localusername, int code)
+        public void SendMessage(string message, string username, int code)
         {
-            message = MakeMessage(message, localusername,  code);
+            message = MakeMessage(message, username,  code);
             byte[] data = Encoding.Unicode.GetBytes(message);
             try
             {
@@ -69,20 +56,18 @@ namespace CSaN3
         
         public void Dispose()
         {
-            stream.Close();
             stream.Dispose();
-            tcpClient.Close();
             tcpClient.Dispose();
         }
 
         public string MakeMessage(string message)
         {
-            return codeEnd + username + nameEnd + ipStart + IPEndPoint.Address + ipEnd + message;
+            return codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + message;
         }
 
-        public string MakeMessage(string message, string localusername, int code)
+        public string MakeMessage(string message, string username, int code)
         {
-            return code.ToString() + codeEnd + localusername + nameEnd + ipStart + IPEndPoint.Address + ipEnd + message;
+            return code.ToString() + codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + message;
         }
 
         public string getChatterName(string message)
