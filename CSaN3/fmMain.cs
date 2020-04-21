@@ -35,7 +35,8 @@ namespace CSaN3
         {
             UdpClient udpClient = new UdpClient(IPAddress.Broadcast.ToString(), udp_port);
             udpClient.EnableBroadcast = true;
-            var data = Encoding.Unicode.GetBytes(username);
+            string message = username + "|" + localIP;
+            var data = Encoding.Unicode.GetBytes(message);
             Task.Factory.StartNew(ListenForConnections);
             for (int i = 0; i < packetsNumber; i++)
             {
@@ -62,9 +63,11 @@ namespace CSaN3
                         {
                             var chatter = new ChatParticipant();
                             chatter.IPv4Address = host.Address;
-                            chatter.username = Encoding.Unicode.GetString(receivedData);
+                            string message = Encoding.Unicode.GetString(receivedData);
+                            int index = message.LastIndexOf("|")+1;
+                            chatter.username = message.Substring(0, index-1);
                             chatter.Connect();
-                            chatter.SendMessage(" подключился!", CONNECT);
+                            chatter.SendMessage(chatter.username + " подключился!", CONNECT);
                             Chatters.Add(chatter);
                             Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                         }
@@ -87,9 +90,7 @@ namespace CSaN3
 
                     chatter.IPv4Address = ((IPEndPoint)chatter.tcpClient.Client.RemoteEndPoint).Address;
 
-
                     chatter.stream = chatter.tcpClient.GetStream();
-                    chatter.SendMessage(" подключился!", CONNECT);
                     Chatters.Add(chatter);
                     Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                 }
@@ -106,6 +107,10 @@ namespace CSaN3
                 {
                     string data = chatter.ReceiveMessage();
                     string message = data;
+                    if (chatter.getCode(data) == CONNECT)
+                    {
+                        chatter.username = chatter.getChatterName(message);
+                    }
                     if (chatter.getCode(data) == DISCONNECT)
                     {
                         chatter.alive = false;
