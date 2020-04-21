@@ -30,13 +30,13 @@ namespace CSaN3
         private const int DISCONNECT = 3;
         private object synclock = new object();
 
-        // Отправка широковещательного пакета с именем пользователя
-        private void SendBroadcastMessage()
+        // Отправка широковещательного пакета
+        private void SendBroadcast()
         {
             UdpClient udpClient = new UdpClient(IPAddress.Broadcast.ToString(), udp_port);
             udpClient.EnableBroadcast = true;
             var data = Encoding.Unicode.GetBytes(username);
-            Task.Factory.StartNew(ListeningForConnections);
+            Task.Factory.StartNew(ListenForConnections);
             for (int i = 0; i < packetsNumber; i++)
             {
                 udpClient.Send(data, data.Length);
@@ -46,7 +46,7 @@ namespace CSaN3
         }
 
         // Ожидание Broadcast пакетов новых пользователей
-        private void ListenBroadcastUDP()
+        private void ListenUDP()
         {
             var udpListener = new UdpClient(udp_port);
             udpListener.EnableBroadcast = true;
@@ -58,7 +58,7 @@ namespace CSaN3
                 {
                     if (!host.Address.Equals(localIP))
                     {
-                        if (!AlreadyConnected(host.Address))
+                        if (!isConnected(host.Address))
                         {
                             var chatter = new ChatParticipant();
                             chatter.IPv4Address = host.Address;
@@ -66,7 +66,7 @@ namespace CSaN3
                             chatter.Connect();
                             chatter.SendMessage(" подключился!",username, CONNECT);
                             Chatters.Add(chatter);
-                            Task.Factory.StartNew(() => ListenTCP(Chatters[Chatters.IndexOf(chatter)]));
+                            Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                         }
                     }
                 }
@@ -74,7 +74,7 @@ namespace CSaN3
         }
 
         // Ожидание подключений
-        private void ListeningForConnections()
+        private void ListenForConnections()
         {
             tcpListener = new TcpListener(localIP, tcp_port);
             tcpListener.Start();
@@ -91,14 +91,14 @@ namespace CSaN3
                     chatter.stream = chatter.tcpClient.GetStream();
                     chatter.SendMessage(" подключился!",username, CONNECT);
                     Chatters.Add(chatter);
-                    Task.Factory.StartNew(() => ListenTCP(Chatters[Chatters.IndexOf(chatter)]));
+                    Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                 }
             }
             tcpListener.Stop();
         }
 
         // Обработка сообщений от пользователя
-        private void ListenTCP(ChatParticipant chatter)
+        private void ListenChatter(ChatParticipant chatter)
         {
             while (chatter.alive)
             {
@@ -118,7 +118,7 @@ namespace CSaN3
         }
 
         // Отправить сообщение всем пользователям
-        private void SendMessageByTCP(string message)
+        private void SendMessageTCP(string message)
         {
             foreach (var chatter in Chatters)
             {
@@ -142,7 +142,7 @@ namespace CSaN3
         }
 
         // Подключен ли уже пользователь с данным ip
-        private bool AlreadyConnected(IPAddress ip)
+        private bool isConnected(IPAddress ip)
         {
             foreach (var chatter in Chatters)
             {
@@ -156,6 +156,7 @@ namespace CSaN3
         // Отобразить сообщение пользователя
         private void DisplayMessage(string message)
         {
+            //Обращение к исходному потоку
             this.Invoke(new MethodInvoker(() =>
             {
                 string time = DateTime.Now.ToString();
@@ -167,7 +168,7 @@ namespace CSaN3
         private void SendMessage()
         {
             string message = tbSendText.Text;
-            SendMessageByTCP(message);
+            SendMessageTCP(message);
             string time = DateTime.Now.ToString();
 
             var temp = new ChatParticipant();
@@ -196,7 +197,7 @@ namespace CSaN3
         {
             InitializeComponent();
             localIP = LocalIPAddress();
-            Task.Factory.StartNew(ListenBroadcastUDP);
+            Task.Factory.StartNew(ListenUDP);
         }
 
         private void bbSendText_Click(object sender, EventArgs e)
@@ -212,12 +213,13 @@ namespace CSaN3
         private void bbConnect_Click(object sender, EventArgs e)
         {
             alive = true;
+            tbChat.Clear();
             username = tbName.Text;
             tbName.ReadOnly = true;
             bbConnect.Enabled = false;
             bbDisconnect.Enabled = true;
             bbSendText.Enabled = true;
-            SendBroadcastMessage();
+            SendBroadcast();
         }
 
         private void bbDisconnect_Click(object sender, EventArgs e)
