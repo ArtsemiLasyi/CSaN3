@@ -64,7 +64,7 @@ namespace CSaN3
                             chatter.IPv4Address = host.Address;
                             chatter.username = Encoding.Unicode.GetString(receivedData);
                             chatter.Connect();
-                            chatter.SendMessage(" подключился!",username, CONNECT);
+                            chatter.SendMessage(" подключился!", CONNECT);
                             Chatters.Add(chatter);
                             Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                         }
@@ -89,7 +89,7 @@ namespace CSaN3
 
 
                     chatter.stream = chatter.tcpClient.GetStream();
-                    chatter.SendMessage(" подключился!",username, CONNECT);
+                    chatter.SendMessage(" подключился!", CONNECT);
                     Chatters.Add(chatter);
                     Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                 }
@@ -122,7 +122,7 @@ namespace CSaN3
         {
             foreach (var chatter in Chatters)
             {
-                chatter.SendMessage(message,username, MESSAGE);
+                chatter.SendMessage(message, MESSAGE);
             }
         }
 
@@ -134,7 +134,7 @@ namespace CSaN3
                 foreach (var chatter in Chatters)
                 {
                     chatter.alive = false;
-                    chatter.SendMessage(" отключился!",username, DISCONNECT);
+                    chatter.SendMessage(" отключился!", DISCONNECT);
                     chatter.Dispose();
                 }
                 Chatters.Clear();

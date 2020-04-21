@@ -30,9 +30,9 @@ namespace CSaN3
             stream = tcpClient.GetStream();
         }
 
-        public void SendMessage(string message, string username, int code)
+        public void SendMessage(string message, int code)
         {
-            message = MakeMessage(message, username,  code);
+            message = MakeMessage(message,  code);
             byte[] data = Encoding.Unicode.GetBytes(message);
             try
             {
@@ -65,7 +65,7 @@ namespace CSaN3
             return codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + message;
         }
 
-        public string MakeMessage(string message, string username, int code)
+        public string MakeMessage(string message, int code)
         {
             return code.ToString() + codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + message;
         }
