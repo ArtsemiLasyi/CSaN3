@@ -91,6 +91,7 @@ namespace CSaN3
                     chatter.IPv4Address = ((IPEndPoint)chatter.tcpClient.Client.RemoteEndPoint).Address;
 
                     chatter.stream = chatter.tcpClient.GetStream();
+                    chatter.SendMessage(chatter.username + " подключился!", CONNECT);
                     Chatters.Add(chatter);
                     Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                 }
