@@ -18,7 +18,8 @@ namespace CSaN3
         private const int udp_port = 11000;
         private const int tcp_port = 7171;
         private const byte packetsNumber = 10;
-        private bool alive = false;
+        private volatile bool alive = false;
+        private volatile bool getHistory = false;
   
 
         private TcpListener tcpListener;
@@ -28,14 +29,23 @@ namespace CSaN3
         private const int CONNECT = 1;
         private const int MESSAGE = 2;
         private const int DISCONNECT = 3;
+        private const int SENDHISTORY = 4;
         private object synclock = new object();
+
+        // Получить адрес для broadcast
+        private string getBroadcast(string localIP)
+        {
+            string temp = localIP.Substring(0, localIP.LastIndexOf(".") + 1);
+            return temp + "255";
+        }
 
         // Отправка широковещательного пакета
         private void SendBroadcast()
         {
-            UdpClient udpClient = new UdpClient(IPAddress.Broadcast.ToString(), udp_port);
+            string broadcast = getBroadcast(localIP.ToString());
+            UdpClient udpClient = new UdpClient(broadcast, udp_port);
             udpClient.EnableBroadcast = true;
-            string message = username + "|" + localIP;
+            string message = username + " [" + localIP + "] подключился!";
             var data = Encoding.Unicode.GetBytes(message);
             Task.Factory.StartNew(ListenForConnections);
             for (int i = 0; i < packetsNumber; i++)
@@ -62,12 +72,15 @@ namespace CSaN3
                         if (!isConnected(host.Address))
                         {
                             var chatter = new ChatParticipant();
+                            chatter.tcp_port = tcp_port;
                             chatter.IPv4Address = host.Address;
                             string message = Encoding.Unicode.GetString(receivedData);
-                            int index = message.LastIndexOf("|")+1;
-                            chatter.username = message.Substring(0, index-1);
+                            DisplayMessage(message, true);
+                            int index = message.LastIndexOf("[");
+                            chatter.username = message.Substring(0, index);
                             chatter.Connect();
                             chatter.SendMessage(chatter.username + " подключился!", CONNECT);
+                            chatter.SendMessage(tbChat.Text, SENDHISTORY);
                             Chatters.Add(chatter);
                             Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                         }
@@ -108,17 +121,32 @@ namespace CSaN3
                 {
                     string data = chatter.ReceiveMessage();
                     string message = data;
-                    if (chatter.getCode(data) == CONNECT)
+                    int code = chatter.getCode(data);
+                    switch (code)
                     {
-                        chatter.username = chatter.getChatterName(message);
+                        case CONNECT:
+                            chatter.username = chatter.getChatterName(message);
+                            break;
+                        case MESSAGE:
+                            DisplayMessage(message, true);
+                            break;
+                        case DISCONNECT:
+                            chatter.alive = false;
+                            Chatters.Remove(chatter);
+                            chatter.Dispose();
+                            DisplayMessage(message, true);
+                            break;
+                        case SENDHISTORY:
+                            if (!getHistory)
+                            {
+                                getHistory = true;
+                                string temp = chatter.getText(message);
+                                DisplayMessage(temp, false);
+                            }
+                            break;
+                        default:
+                            break;
                     }
-                    if (chatter.getCode(data) == DISCONNECT)
-                    {
-                        chatter.alive = false;
-                        Chatters.Remove(chatter);
-                        chatter.Dispose();
-                    }
-                    DisplayMessage(message);
                 }
             }
         }
@@ -160,13 +188,20 @@ namespace CSaN3
         }
 
         // Отобразить сообщение пользователя
-        private void DisplayMessage(string message)
+        private void DisplayMessage(string message, bool withTime)
         {
             //Обращение к исходному потоку
             this.Invoke(new MethodInvoker(() =>
             {
-                string time = DateTime.Now.ToString();
-                tbChat.Text = time + " " + message + "\r\n" + tbChat.Text;
+                if (withTime)
+                {
+                    string time = DateTime.Now.ToString();
+                    tbChat.Text = time + " " + message + "\r\n" + tbChat.Text;
+                }
+                else
+                {
+                    tbChat.Text = message + tbChat.Text;
+                }
             }));
         }
 
@@ -181,6 +216,7 @@ namespace CSaN3
             temp.username = username;
             temp.IPv4Address = localIP;
             message = temp.MakeMessage(message);
+            message = temp.getMessage(message);
             message = time + " " + message;
 
             tbChat.Text = message + "\r\n" + tbChat.Text;
@@ -219,6 +255,7 @@ namespace CSaN3
         private void bbConnect_Click(object sender, EventArgs e)
         {
             alive = true;
+            getHistory = false;
             tbChat.Clear();
             username = tbName.Text;
             tbName.ReadOnly = true;
@@ -231,10 +268,20 @@ namespace CSaN3
         private void bbDisconnect_Click(object sender, EventArgs e)
         {
             alive = false;
+            getHistory = false;
             bbConnect.Enabled = true;
             bbDisconnect.Enabled = false;
             bbSendText.Enabled = false;
             Disconnect();
+        }
+
+        private void tbSendText_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.KeyCode == Keys.Enter) && (alive))
+            {
+                e.SuppressKeyPress = true;
+                SendMessage();
+            }
         }
     }
 }

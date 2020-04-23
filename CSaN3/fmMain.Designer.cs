@@ -70,12 +70,13 @@
             // 
             // tbSendText
             // 
+            this.tbSendText.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tbSendText.Location = new System.Drawing.Point(419, 548);
             this.tbSendText.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tbSendText.Multiline = true;
             this.tbSendText.Name = "tbSendText";
-            this.tbSendText.Size = new System.Drawing.Size(713, 37);
+            this.tbSendText.Size = new System.Drawing.Size(713, 34);
             this.tbSendText.TabIndex = 5;
+            this.tbSendText.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbSendText_KeyDown);
             // 
             // tbChat
             // 

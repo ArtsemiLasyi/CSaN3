@@ -10,7 +10,7 @@ namespace CSaN3
 {
     public class ChatParticipant : IDisposable
     {
-        private const int tcp_port = 7171;
+        public int tcp_port;
         private string ipStart = "[";
         private string ipEnd = "]";
         private string nameEnd = " ";
@@ -62,12 +62,12 @@ namespace CSaN3
 
         public string MakeMessage(string message)
         {
-            return codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + message;
+            return codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + " " + message;
         }
 
         public string MakeMessage(string message, int code)
         {
-            return code.ToString() + codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + message;
+            return code.ToString() + codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + " " + message;
         }
 
         public string getChatterName(string message)
@@ -98,9 +98,15 @@ namespace CSaN3
             return 0;
         }
 
-        public string getMessage(string message)
+        public string getText(string message)
         {
             int index = message.IndexOf(ipEnd) + 1;
+            return message.Remove(0, index);
+        }
+
+        public string getMessage(string message)
+        {
+            int index = message.IndexOf(codeEnd) + 1;
             return message.Remove(0, index);
         }
     }
