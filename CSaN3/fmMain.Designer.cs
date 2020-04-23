@@ -129,6 +129,7 @@
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "fmMain";
             this.Text = "Локальный чат";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.fmMain_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 

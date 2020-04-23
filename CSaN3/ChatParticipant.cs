@@ -20,7 +20,6 @@ namespace CSaN3
         public NetworkStream stream;
         public bool alive = true;
 
-        public string username;
         public IPAddress IPv4Address;
 
         public void Connect()
@@ -30,9 +29,9 @@ namespace CSaN3
             stream = tcpClient.GetStream();
         }
 
-        public void SendMessage(string message, int code)
+        public void SendMessage(string message, string username, string ip, int code)
         {
-            message = MakeMessage(message,  code);
+            message = MakeMessage(message, username, ip, code);
             byte[] data = Encoding.Unicode.GetBytes(message);
             try
             {
@@ -60,14 +59,14 @@ namespace CSaN3
             tcpClient.Dispose();
         }
 
-        public string MakeMessage(string message)
+        public string MakeMessage(string message, string username, string ip)
         {
             return codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + " " + message;
         }
 
-        public string MakeMessage(string message, int code)
+        public string MakeMessage(string message, string username, string ip, int code)
         {
-            return code.ToString() + codeEnd + username + nameEnd + ipStart + IPv4Address + ipEnd + " " + message;
+            return code.ToString() + codeEnd + username + nameEnd + ipStart + ip + ipEnd + " " + message;
         }
 
         public string getChatterName(string message)

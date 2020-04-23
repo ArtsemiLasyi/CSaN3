@@ -76,11 +76,9 @@ namespace CSaN3
                             chatter.IPv4Address = host.Address;
                             string message = Encoding.Unicode.GetString(receivedData);
                             DisplayMessage(message, true);
-                            int index = message.LastIndexOf("[");
-                            chatter.username = message.Substring(0, index);
                             chatter.Connect();
-                            chatter.SendMessage(chatter.username + " подключился!", CONNECT);
-                            chatter.SendMessage(tbChat.Text, SENDHISTORY);
+                            chatter.SendMessage(" подключился!", username, localIP.ToString(), CONNECT);
+                            chatter.SendMessage(tbChat.Text, username, localIP.ToString(), SENDHISTORY);
                             Chatters.Add(chatter);
                             Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                         }
@@ -103,8 +101,9 @@ namespace CSaN3
 
                     chatter.IPv4Address = ((IPEndPoint)chatter.tcpClient.Client.RemoteEndPoint).Address;
 
+
                     chatter.stream = chatter.tcpClient.GetStream();
-                    chatter.SendMessage(chatter.username + " подключился!", CONNECT);
+                    chatter.SendMessage(" подключился!", username, localIP.ToString(), CONNECT);
                     Chatters.Add(chatter);
                     Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
                 }
@@ -121,11 +120,11 @@ namespace CSaN3
                 {
                     string data = chatter.ReceiveMessage();
                     string message = data;
+                    message = chatter.getMessage(message);
                     int code = chatter.getCode(data);
                     switch (code)
                     {
                         case CONNECT:
-                            chatter.username = chatter.getChatterName(message);
                             break;
                         case MESSAGE:
                             DisplayMessage(message, true);
@@ -156,7 +155,7 @@ namespace CSaN3
         {
             foreach (var chatter in Chatters)
             {
-                chatter.SendMessage(message, MESSAGE);
+                chatter.SendMessage(message, username, localIP.ToString(), MESSAGE);
             }
         }
 
@@ -168,7 +167,7 @@ namespace CSaN3
                 foreach (var chatter in Chatters)
                 {
                     chatter.alive = false;
-                    chatter.SendMessage(" отключился!", DISCONNECT);
+                    chatter.SendMessage(" отключился!", username, localIP.ToString(), DISCONNECT);
                     chatter.Dispose();
                 }
                 Chatters.Clear();
@@ -213,9 +212,8 @@ namespace CSaN3
             string time = DateTime.Now.ToString();
 
             var temp = new ChatParticipant();
-            temp.username = username;
             temp.IPv4Address = localIP;
-            message = temp.MakeMessage(message);
+            message = temp.MakeMessage(message, username, localIP.ToString());
             message = temp.getMessage(message);
             message = time + " " + message;
 
@@ -281,6 +279,15 @@ namespace CSaN3
             {
                 e.SuppressKeyPress = true;
                 SendMessage();
+            }
+        }
+
+        private void fmMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (alive)
+            {
+                alive = false;
+                Disconnect();
             }
         }
     }
