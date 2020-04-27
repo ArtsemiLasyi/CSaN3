@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 
 namespace CSaN3
 {
@@ -105,7 +106,7 @@ namespace CSaN3
                     chatter.stream = chatter.tcpClient.GetStream();
                     chatter.SendMessage(" подключился!", username, localIP.ToString(), CONNECT);
                     Chatters.Add(chatter);
-                    Task.Factory.StartNew(() => ListenChatter(Chatters[Chatters.IndexOf(chatter)]));
+                    Task.Factory.StartNew(() => ListenChatter(chatter));
                 }
             }
             tcpListener.Stop();

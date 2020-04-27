@@ -118,7 +118,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.ClientSize = new System.Drawing.Size(1135, 588);
+            this.ClientSize = new System.Drawing.Size(1145, 588);
             this.Controls.Add(this.bbDisconnect);
             this.Controls.Add(this.bbConnect);
             this.Controls.Add(this.tbChat);
@@ -126,7 +126,9 @@
             this.Controls.Add(this.tbName);
             this.Controls.Add(this.bbSendText);
             this.Controls.Add(this.bbName);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MaximizeBox = false;
             this.Name = "fmMain";
             this.Text = "Локальный чат";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.fmMain_FormClosed);
